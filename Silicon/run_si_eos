@@ -4,14 +4,14 @@
 #
 # define the following variables according to your needs
 #
-outdir=temporary_directory_for_large_files
-pseudo_dir=directory_where_pp-files_are_kept
+outdir=out/
+pseudo_dir=../pseudo
 # the following is not actually used:
 # espresso_dir=top_directory_of_espresso_package
 ####################################################################
 
-rm -f si.eos.out si.etot_vs_alat
-touch si.etot_vs_alat
+rm -f si.eos.out out/si.etot_vs_alat
+touch out/si.etot_vs_alat
 
 for alat in 9.8 9.9 10.0 10.1 10.2 10.3 10.4 10.5 10.6 10.7 ; do
 
@@ -19,8 +19,8 @@ for alat in 9.8 9.9 10.0 10.1 10.2 10.3 10.4 10.5 10.6 10.7 ; do
 cat > si.eos.in << EOF
  &control
     prefix='silicon',
-    pseudo_dir = '$pseudo_dir/',
-    outdir='$outdir/'
+    pseudo_dir = '../pseudo',
+    outdir='out/'
  /
  &system    
     ibrav=  2, celldm(1) =$alat, nat=  2, ntyp= 1,
@@ -42,7 +42,16 @@ EOF
 
 pw.x -in si.eos.in > si.eos.out
 
-grep -e 'lattice parameter' -e ! si.eos.out | \
-      awk '/lattice/{alat=$(NF-1)}/!/{print alat, $(NF-1)}' >> si.etot_vs_alat
+# grep -e 'lattice parameter' -e ! si.eos.out | \
+      # awk '/lattice/{alat=$(NF-1)}/!/{print alat, $(NF-1)}' >> out/si.etot_vs_alat
+
+# set grep to variable
+lattice_param="$(grep 'lattice parameter' si.eos.out | awk '{print $(NF-1)}')"
+total_energy="$(grep ! si.eos.out | awk '{print $(NF-1)}')"
+wall_time="$(grep 'PWSCF.*WALL' si.eos.out | awk '{printf $(NF-1)}' | head -c -1)" 
+
+#print to file
+echo $lattice_param $total_energy >> out/si.etot_vs_alat
+echo $lattice_param $total_energy $wall_time >> out/si.etot_vs_alat_vs_time
 
 done
