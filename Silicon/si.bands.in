@@ -1,8 +1,8 @@
  &control
     calculation='bands'
     prefix='silicon',
-    pseudo_dir = 'directory where pp-files are kept/',
-    outdir='directory where scratch and data files are written/'
+    pseudo_dir = '../pseudo',
+    outdir='out/'
  /
  &system    
     ibrav=  2, celldm(1) =10.7, nat=  2, ntyp= 1,
@@ -11,6 +11,12 @@
  /
  &electrons
  /
+ &bands
+   prefix='silicon',
+   outdir='out/',
+   filband = 'sibands.dat',
+   lsym=.true.
+/
 ATOMIC_SPECIES
  Si  28.086  Si.pz-vbc.UPF
 ATOMIC_POSITIONS alat
